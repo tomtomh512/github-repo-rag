@@ -10,6 +10,7 @@ export default function App() {
   const [indexing, setIndexing] = useState(false)
   const [indexInfo, setIndexInfo] = useState(null)
   const [question, setQuestion] = useState('')
+  const [topK, setTopK] = useState(6)
   const [querying, setQuerying] = useState(false)
   const [results, setResults] = useState([])
   const [error, setError] = useState('')
@@ -52,7 +53,7 @@ export default function App() {
       const res = await fetch(`${API_BASE}/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question.trim(), top_k: 6 }),
+        body: JSON.stringify({ question: question.trim(), top_k: topK }),
       })
 
       const d = await res.json()
@@ -86,6 +87,8 @@ export default function App() {
       <QueryForm
         question={question}
         setQuestion={setQuestion}
+        topK={topK}
+        setTopK={setTopK}
         onSubmit={handleQuery}
         querying={querying}
         disabled={!indexInfo}

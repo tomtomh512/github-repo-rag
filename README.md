@@ -2,8 +2,10 @@
 
 A RAG application to ask questions about a public GitHub repository. **Optimized for Python and JavaScript/TypeScript projects**
 
+<img src="assets/thumbnail.png">
+
 ## Tech Stack
-Python, Google Gemini, FAISS, FastAPI, Docker
+Python, Google Gemini, FAISS, FastAPI
 
 ## Running Locally
 
@@ -32,7 +34,7 @@ GEMINI_API_KEY=example_gemini_key
 **3. Start the services**
 
 ```bash
-docker compose up --build
+docker-compose up --build
 ```
 
 
