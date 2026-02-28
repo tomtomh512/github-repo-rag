@@ -54,7 +54,7 @@ docker-compose up --build
 3. **Chunk:** Files are split into meaningful chunks based on the code's language
    - **Python:** Splits on top-level `def` and `class` statements
    - **JavaScript/TypeScript:** Splits on `function`, `class`, and top-level `const` arrow function declarations
-   - **Everything else** Sliding window chunking, 1200-char chunks, 200-char overlap
+   - **Everything else:** Sliding window chunking, 1200-char chunks, 200-char overlap
    
    Chunk metadata: `filepath`, `language`, `chunk_type` (`function` | `class` | `file`), `symbol_name`, and `start_line`.
 

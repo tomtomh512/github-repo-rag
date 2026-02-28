@@ -1,16 +1,17 @@
 export default function QueryForm({ question, setQuestion, topK, setTopK, onSubmit, querying, disabled }) {
   return (
     <form onSubmit={onSubmit} className="flex gap-2 items-center">
-      <span className="text-sm font-mono"> Chunks </span>
+      <span className="text-sm font-mono"> Chunks: </span>
       <input
         type="number"
         value={topK}
         onChange={e => setTopK(Number(e.target.value))}
         min={1}
         max={20}
-        disabled={disabled}
+        disabled={disabled || querying}
         className="w-16 bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-neutral-600 disabled:opacity-40"
       />
+      <span className="text-sm font-mono"> Query: </span>
       <input
         type="text"
         value={question}
