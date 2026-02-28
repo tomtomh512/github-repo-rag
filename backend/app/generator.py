@@ -5,6 +5,12 @@ import google.generativeai as genai
 GENERATION_MODEL = "gemini-2.5-flash-lite"
 
 
+def configure_gemini():
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable is not set.")
+    genai.configure(api_key=api_key)
+
 def build_prompt(question: str, chunks: List[Dict], repo: str = "") -> str:
     """
     Build prompt

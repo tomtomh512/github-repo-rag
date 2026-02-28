@@ -9,12 +9,12 @@ from app.models import (
     RetrievedChunk,
 )
 from app.ingest import clone_repo, ingest_repo
-from app.embeddings import configure_gemini, embed_chunks, embed_query
+from app.embeddings import embed_chunks, embed_query
 from app.retrieval import (
     build_index, save_index, load_index, search,
     index_exists, get_index_size, get_repo_info,
 )
-from app.generator import generate_answer
+from app.generator import configure_gemini, generate_answer
 
 app = FastAPI(
     title="Repo RAG — Codebase Q&A",

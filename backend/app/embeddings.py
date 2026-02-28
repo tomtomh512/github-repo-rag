@@ -1,62 +1,47 @@
-import os
-import time
 from typing import List
 import numpy as np
-import google.generativeai as genai
-from google.api_core.exceptions import ResourceExhausted
+from sentence_transformers import SentenceTransformer
 
-EMBEDDING_MODEL = "models/gemini-embedding-001"
-EMBEDDING_DIM = 3072
+EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
+EMBEDDING_DIM = 768
+
+_model: SentenceTransformer = None
 
 
-def configure_gemini():
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable is not set.")
-    genai.configure(api_key=api_key)
+def _get_model() -> SentenceTransformer:
+    global _model
+    if _model is None:
+        print(f"Loading embedding model: {EMBEDDING_MODEL}...")
+        _model = SentenceTransformer(EMBEDDING_MODEL)
+    return _model
 
 
 def embed_text(text: str, task_type: str = "RETRIEVAL_DOCUMENT") -> List[float]:
-    for attempt in range(5):
-        try:
-            result = genai.embed_content(
-                model=EMBEDDING_MODEL,
-                content=text,
-                task_type=task_type,
-            )
-            return result["embedding"]
-        except ResourceExhausted:
-            print(f"retry {attempt + 1}/5")
-            time.sleep(30)
-    raise RuntimeError("failed after 5 retries")
+    model = _get_model()
+    embedding = model.encode(text, normalize_embeddings=True)
+    return embedding.tolist()
 
 
-def embed_chunks(chunks: List[str], batch_size: int = 20) -> np.ndarray:
+def embed_chunks(chunks: List[str], batch_size: int = 64) -> np.ndarray:
     """
-    Embed a list of code chunks
+    Embed a list of code chunks in batches.
     Returns numpy array of shape (num_chunks, EMBEDDING_DIM)
     """
 
+    model = _get_model()
     all_embeddings = []
 
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i: i + batch_size]
-        batch_embeddings = []
-
-        for text in batch:
-            embedding = embed_text(text, task_type="RETRIEVAL_DOCUMENT")
-            batch_embeddings.append(embedding)
-            time.sleep(0.65)    # delay calls to stay under the rate limit
-
-        all_embeddings.extend(batch_embeddings)
+        embeddings = model.encode(batch, normalize_embeddings=True, show_progress_bar=False)
+        all_embeddings.append(embeddings)
         print(f"  Embedded {min(i + batch_size, len(chunks))}/{len(chunks)} chunks...")
 
-    return np.array(all_embeddings, dtype=np.float32)
+    return np.vstack(all_embeddings).astype(np.float32)
 
 
 def embed_query(query: str) -> np.ndarray:
-    """
-    Embed the query
-    """
-    embedding = embed_text(query, task_type="RETRIEVAL_QUERY")  # use RETRIEVAL_QUERY because not code
+    model = _get_model()
+    prefixed_query = f"Represent this sentence for searching relevant passages: {query}"
+    embedding = model.encode(prefixed_query, normalize_embeddings=True)
     return np.array([embedding], dtype=np.float32)
